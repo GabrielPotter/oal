@@ -1,0 +1,31 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+*.trx
+*.coverage
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+.vs/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# Local tooling
+.dotnet-home/
+
+# Logs
+*.log

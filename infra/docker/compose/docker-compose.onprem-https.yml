@@ -1,0 +1,124 @@
+services:
+  web-nginx:
+    build:
+      context: ../../..
+      dockerfile: src/ui/web-app/Dockerfile
+    container_name: oal-web-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../../nginx/default-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - gateway-api
+
+  gateway-api:
+    build:
+      context: ../../..
+      dockerfile: src/services/Gateway/Gateway.Api/Dockerfile
+    container_name: oal-gateway-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Authentication__Authority: https://id.example.com/realms/oal
+      Authentication__Audience: oal.api
+      Authentication__RequireHttpsMetadata: true
+      Authorization__RequiredScope: oal.api
+      Authorization__TenantClaim: tenant_id
+      FrontendAuth__Authority: https://id.example.com/realms/oal
+      FrontendAuth__Realm: oal
+      FrontendAuth__ClientId: web-app
+      FrontendAuth__Scope: openid profile email
+      FrontendAuth__RedirectUri: https://app.example.com/app
+      FrontendAuth__PostLogoutRedirectUri: https://app.example.com/login
+      Edge__PublicUrl: https://app.example.com
+      Edge__TlsMode: onprem-nginx
+      Edge__KeycloakPublicUrl: https://id.example.com/realms/oal
+      Edge__GatewayInternalUrl: http://gateway-api:8080
+      InternalServices__Services__0__Name: identity
+      InternalServices__Services__0__BaseUrl: http://identity-api:8080
+      InternalServices__Services__1__Name: catalog
+      InternalServices__Services__1__BaseUrl: http://catalog-api:8080
+      Persistence__ConnectionString: Host=postgres;Port=5432;Database=oal;Username=oal;Password=oal
+      Messaging__Host: rabbitmq
+      Messaging__Port: 5672
+      Messaging__Username: oal
+      Messaging__Password: oal
+    depends_on:
+      - identity-api
+      - catalog-api
+      - keycloak
+
+  identity-api:
+    build:
+      context: ../../..
+      dockerfile: src/services/Identity/Identity.Api/Dockerfile
+    container_name: oal-identity-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Authentication__Authority: http://keycloak:8080/realms/oal
+      Authentication__Audience: oal.api
+      Authorization__RequiredScope: oal.api
+      Authorization__TenantClaim: tenant_id
+      Persistence__ConnectionString: Host=postgres;Port=5432;Database=oal;Username=oal;Password=oal
+
+  catalog-api:
+    build:
+      context: ../../..
+      dockerfile: src/services/Catalog/Catalog.Api/Dockerfile
+    container_name: oal-catalog-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Authentication__Authority: http://keycloak:8080/realms/oal
+      Authentication__Audience: oal.api
+      Authorization__RequiredScope: oal.api
+      Authorization__TenantClaim: tenant_id
+      Persistence__ConnectionString: Host=postgres;Port=5432;Database=oal;Username=oal;Password=oal
+
+  postgres:
+    image: postgres:16
+    container_name: oal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: oal
+      POSTGRES_USER: oal
+      POSTGRES_PASSWORD: oal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: oal-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: oal-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: oal
+      RABBITMQ_DEFAULT_PASS: oal
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: oal-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
