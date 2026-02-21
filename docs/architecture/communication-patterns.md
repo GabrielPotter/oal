@@ -1,24 +1,54 @@
 # Communication Patterns
 
-## Baseline
+## Purpose
 
-- Primary pattern: synchronous HTTP/gRPC service-to-service APIs.
-- Optional pattern: asynchronous messaging when needed for decoupling or eventual consistency.
-- RabbitMQ integration can remain available as an optional adapter, but it is not the default design center.
+Define default synchronous and optional asynchronous communication patterns.
 
-## Required Cross-Cutting Rules
+## Scope
 
-- Correlation ID propagation across all service boundaries.
-- Standardized error contract for internal service calls.
-- Authentication and authorization enforced on internal and external endpoints.
-- Tenant context is required from JWT claim (`tenant_id`) for protected business endpoints.
+In scope:
+- User-to-backend communication path.
+- Internal service call conventions.
+- Optional event-driven integration baseline.
 
-## User to Backend Communication
+Out of scope:
+- Service-specific protocol optimization.
 
-- UI communicates only with `Gateway.Api`.
-- `Gateway.Api` exposes user-facing endpoints under `/api/frontend/*`.
-- `Gateway.Api` forwards calls to internal services with:
-  - incoming bearer token pass-through (initial strategy)
-  - `X-Correlation-Id` propagation for tracing and audit
-- HTTPS is mandatory between browser and edge.
-- HTTP is allowed between internal services on private network.
+## Baseline Assumptions
+
+- Primary pattern is synchronous HTTP/gRPC.
+- Optional pattern is asynchronous messaging for decoupling/eventual consistency.
+- RabbitMQ adapter support exists but is non-primary.
+
+## Patterns and Rules
+
+User to backend:
+- UI calls `Gateway.Api` via `/api/frontend/*`.
+- Gateway propagates incoming bearer token (initial strategy).
+- Gateway propagates `X-Correlation-Id`.
+
+Service to service:
+- Standardized internal error contract.
+- Authentication and authorization checks remain active.
+- Tenant context for protected endpoints comes from `tenant_id` claim.
+
+Messaging:
+- Use event contracts with explicit versioning.
+- Keep event consumers tolerant to additive change.
+
+## Failure Modes and Troubleshooting
+
+- Missing correlation ID in traces: verify gateway/header forwarding configuration.
+- Tenant context missing: validate token claims and gateway pass-through behavior.
+- Event incompatibility: verify event version contract alignment.
+
+## Related
+
+- `docs/architecture/service-boundaries.md`
+- `docs/security/authentication.md`
+- `docs/contracts/messaging-events.md`
+
+## Last Review
+
+- Date: February 21, 2026
+- Owner role: Platform Architect

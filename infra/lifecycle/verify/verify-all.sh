@@ -19,6 +19,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
 bash "$ROOT_DIR/infra/lifecycle/verify/verify-dotnet.sh"
 bash "$ROOT_DIR/infra/lifecycle/verify/verify-ui.sh"
+bash "$ROOT_DIR/infra/lifecycle/verify/verify-docs.sh"
 
 if [[ "$TARGET" == "all" || "$TARGET" == "onprem" ]]; then
   bash "$ROOT_DIR/infra/lifecycle/verify/verify-manifests-onprem.sh"

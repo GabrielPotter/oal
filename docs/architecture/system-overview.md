@@ -2,28 +2,49 @@
 
 ## Purpose
 
-This repository is a reusable microservices platform skeleton for new product teams.
-The main objective is to provide shared runtime, security, communication, and environment automation so new projects can focus on business logic and API contracts.
+Describe the reusable platform shape provided by this repository.
 
-## Runtime and Infrastructure Baseline
+## Scope
 
-- Runtime target: Linux-first services and containers.
-- Primary relational data store: PostgreSQL.
-- Primary cache: Redis OSS.
-- Messaging capability: RabbitMQ can be used, but it is optional and not a primary dependency.
+In scope:
+- Shared runtime model and deployment targets.
+- Request flow and edge boundaries.
 
-## Deployment Targets
+Out of scope:
+- Domain-specific service behaviors.
 
-- Primary cloud target: Google Cloud.
-- Secondary target: on-premises environments.
-- All infrastructure and scripts should keep both targets deployable with minimal environment-specific overrides.
+## Baseline Assumptions
 
-## Request Flow
+- Linux-first services and containers.
+- PostgreSQL + Redis OSS as data baseline.
+- RabbitMQ optional, not primary.
+- Primary cloud target is GCP, on-prem stays supported.
 
-Browser -> Nginx (web static + reverse proxy) -> Gateway.Api (frontend microservice/BFF) -> internal services.
+## Core Topology
 
-- Users never call internal services directly.
-- `Gateway.Api` is the single user-facing backend entrypoint.
-- Internal service endpoints are private network targets in container/cloud deployments.
-- TLS is terminated at edge (Nginx/Ingress/LB), user traffic is always HTTPS.
-- Internal service communication is HTTP inside private network boundaries.
+Request flow:
+
+Browser -> Nginx (web static + reverse proxy) -> Gateway.Api -> internal services
+
+Rules:
+- `Gateway.Api` is the only user-facing backend.
+- Internal services are private network targets.
+- User traffic is HTTPS at edge.
+- Internal service traffic may be HTTP inside private boundaries.
+
+## Failure Modes and Troubleshooting
+
+- Browser cannot load UI: verify Nginx is running and mapped to expected host/port.
+- API 502/504 at edge: verify Gateway health and upstream routing.
+- Internal service unreachable: verify private network and service discovery.
+
+## Related
+
+- `docs/architecture/service-boundaries.md`
+- `docs/architecture/communication-patterns.md`
+- `docs/security/encryption.md`
+
+## Last Review
+
+- Date: February 21, 2026
+- Owner role: Platform Architect
