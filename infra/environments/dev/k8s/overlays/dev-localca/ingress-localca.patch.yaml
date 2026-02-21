@@ -1,0 +1,35 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: dev
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oal-dev-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+    - hosts:
+        - app.local
+      secretName: oal-dev-edge-tls
+  rules:
+    - host: app.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-nginx
+                port:
+                  number: 80

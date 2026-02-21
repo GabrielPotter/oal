@@ -16,7 +16,8 @@ Out of scope:
 ## Baseline Assumptions
 
 - Linux-compatible developer machine.
-- Foundation services: PostgreSQL, Redis OSS, Keycloak.
+- `kind` is the primary local runtime orchestrator.
+- Default dev TLS profile uses local CA certificates.
 - RabbitMQ optional and non-primary.
 
 ## Concrete Commands and Examples
@@ -24,12 +25,27 @@ Out of scope:
 Start/stop/reset:
 
 ```sh
-infra/lifecycle/run/run-dev.sh up
-infra/lifecycle/run/run-dev.sh down
-infra/lifecycle/run/run-dev.sh reset
+infra/lifecycle/run/run-dev.sh up --mode k8s --tls local-ca
+infra/lifecycle/run/run-dev.sh down --mode k8s
+infra/lifecycle/run/run-dev.sh reset --mode k8s
 ```
 
-On-prem simulation:
+Create/update TLS secret from local CA files (optional helper path):
+
+```sh
+DEV_EDGE_TLS_CERT_FILE=infra/certs/selfsigned/app.local/app.local.crt \
+DEV_EDGE_TLS_KEY_FILE=infra/certs/selfsigned/app.local/app.local.key \
+infra/lifecycle/run/run-dev.sh up --mode k8s --tls local-ca
+```
+
+Compose fallback:
+
+```sh
+infra/lifecycle/run/run-dev.sh up --mode compose
+infra/lifecycle/run/run-dev.sh down --mode compose
+```
+
+On-prem baseline simulation:
 
 ```sh
 infra/lifecycle/run/run-onprem.sh bootstrap
@@ -43,12 +59,13 @@ infra/environments/onprem/scripts/tls/renew.sh
 ```
 
 Access points:
-- `http://localhost:8080` (web UI dev edge)
-- `http://localhost:8088` (Keycloak)
+- `https://app.local` (kind + local-ca profile)
+- `http://localhost:8080` (compose fallback)
 
 ## Failure Modes and Troubleshooting
 
 - Services fail to boot: inspect compose logs and verify env file values.
+- Ingress/TLS issue on kind: verify local CA trust and `oal-dev-edge-tls` secret contents.
 - Auth endpoints unavailable: verify Keycloak startup and network mapping.
 
 ## Related

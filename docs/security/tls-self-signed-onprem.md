@@ -2,11 +2,12 @@
 
 ## Purpose
 
-Provide HTTPS testing for on-prem style environments without a public CA-issued certificate.
+Provide HTTPS testing for local development and on-prem style environments without a public CA-issued certificate.
 
 ## Scope
 
 In scope:
+- Dev kind/local-cluster HTTPS with trusted local CA.
 - Local CA setup.
 - Leaf certificate generation.
 - Nginx TLS mounting and validation.
@@ -48,6 +49,14 @@ Validate chain and HTTPS:
 ```sh
 openssl s_client -connect app.local:443 -servername app.local </dev/null | openssl x509 -noout -issuer -subject
 curl --cacert infra/certs/selfsigned/ca/rootCA.crt -I https://app.local
+```
+
+Dev kind with local-CA profile:
+
+```sh
+DEV_EDGE_TLS_CERT_FILE=infra/certs/selfsigned/app.local/app.local.crt \
+DEV_EDGE_TLS_KEY_FILE=infra/certs/selfsigned/app.local/app.local.key \
+infra/lifecycle/run/run-dev.sh up --mode k8s --tls local-ca
 ```
 
 ## Failure Modes and Troubleshooting

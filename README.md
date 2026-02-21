@@ -27,8 +27,9 @@ npm run build
 ```
 
 ```sh
-infra/lifecycle/run/run-dev.sh up
-infra/lifecycle/run/run-dev.sh down
+infra/lifecycle/run/run-dev.sh up --mode k8s --tls local-ca
+infra/lifecycle/run/run-dev.sh down --mode k8s
+infra/lifecycle/run/run-dev.sh up --mode compose
 ```
 
 ## Documentation

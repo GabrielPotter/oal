@@ -21,8 +21,9 @@ Out of scope:
 
 1. `dotnet-and-ui-verify`
 2. `docs-validate`
-3. `gcp-manifests-validate`
-4. `onprem-manifests-validate`
+3. `dev-kind-manifests-validate`
+4. `gcp-manifests-validate`
+5. `onprem-manifests-validate`
 
 ## Concrete Commands and Examples
 
@@ -30,6 +31,7 @@ Out of scope:
 infra/lifecycle/verify/verify-dotnet.sh
 infra/lifecycle/verify/verify-ui.sh
 infra/lifecycle/verify/verify-docs.sh
+infra/lifecycle/verify/verify-manifests-dev-kind.sh
 infra/lifecycle/verify/verify-manifests-gcp.sh
 infra/lifecycle/verify/verify-manifests-onprem.sh
 ```

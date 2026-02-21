@@ -32,6 +32,7 @@ if [[ "$TARGET" == "all" || "$TARGET" == "onprem" ]]; then
 fi
 
 if [[ "$TARGET" == "all" || "$TARGET" == "dev" ]]; then
+  bash "$ROOT_DIR/infra/lifecycle/verify/verify-manifests-dev-kind.sh"
   docker compose -f "$ROOT_DIR/infra/environments/dev/docker/compose/stack.foundation.yml" config >/dev/null
   docker compose -f "$ROOT_DIR/infra/environments/dev/docker/compose/stack.app.yml" config >/dev/null
 fi

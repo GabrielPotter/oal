@@ -9,6 +9,7 @@ Define production runtime expectations for GCP-first and on-prem compatible oper
 In scope:
 - Production baseline requirements.
 - TLS policy and deployment overlays.
+- On-prem profile usage as a template baseline.
 
 Out of scope:
 - Product-specific incident and escalation playbooks.
@@ -30,11 +31,19 @@ On-prem TLS helpers:
 - `infra/environments/onprem/scripts/tls/issue-letsencrypt.sh`
 - `infra/environments/onprem/scripts/tls/renew.sh`
 
+On-prem certificate source is deployment-specific:
+- public domain issuer (for example Let's Encrypt), or
+- private/local CA integrated into enterprise trust.
+
 GCP TLS baseline:
 - Ingress + `ManagedCertificate` overlays under `infra/environments/gcp/k8s/overlays/*`.
 
 On-prem Kubernetes overlays:
 - `infra/environments/onprem/k8s/overlays/{dev,test,prod}`
+
+On-prem profile note:
+- treat these overlays and compose flows as adaptation templates.
+- specialize ingress, secret provider, and network policy per target cluster.
 
 ## Concrete Commands and Examples
 

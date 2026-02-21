@@ -1,0 +1,23 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: dev
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../dev
+patchesStrategicMerge:
+  - ingress-localca.patch.yaml
+configMapGenerator:
+  - name: platform-config
+    behavior: merge
+    literals:
+      - AUTHORITY_URL=https://id.local/realms/oal
+      - AUTH_REQUIRE_HTTPS_METADATA=true
+      - FRONTEND_ALLOWED_ORIGINS=https://app.local
+      - FRONTEND_AUTH_AUTHORITY=https://id.local/realms/oal
+      - FRONTEND_AUTH_REDIRECT_URI=https://app.local/app
+      - FRONTEND_AUTH_POST_LOGOUT_REDIRECT_URI=https://app.local/login
+generatorOptions:
+  disableNameSuffixHash: true

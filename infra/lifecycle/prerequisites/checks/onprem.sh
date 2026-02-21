@@ -11,15 +11,31 @@ set -euo pipefail
 
 check_onprem_dependencies() {
   local failed=0
-  check_or_install_cmd "openssl" "openssl" "required for TLS validation" || failed=1
-  check_or_install_cmd "certbot" "certbot" "required for Let's Encrypt certificate lifecycle" || failed=1
-  check_or_install_cmd "nginx" "nginx" "required for edge reverse-proxy in VM deployment mode" || failed=1
+  # On-prem is template-profile driven; cluster/network/cert providers are deployment specific.
   check_or_install_cmd "kubectl" "kubectl" "required for on-prem Kubernetes deployment workflow" || failed=1
 
   if command -v kustomize >/dev/null 2>&1 || kubectl kustomize --help >/dev/null 2>&1; then
     echo "{\"name\":\"kustomize\",\"status\":\"pass\",\"reason\":\"installed\"}" >> "$REPORT_TMP"
   else
     check_or_install_cmd "kustomize" "kustomize" "required for on-prem overlay rendering and deployment" || failed=1
+  fi
+
+  if command -v openssl >/dev/null 2>&1; then
+    echo "{\"name\":\"openssl\",\"status\":\"pass\",\"reason\":\"installed\"}" >> "$REPORT_TMP"
+  else
+    echo "{\"name\":\"openssl\",\"status\":\"warn\",\"reason\":\"optional; required only for local certificate workflows\"}" >> "$REPORT_TMP"
+  fi
+
+  if command -v certbot >/dev/null 2>&1; then
+    echo "{\"name\":\"certbot\",\"status\":\"pass\",\"reason\":\"installed\"}" >> "$REPORT_TMP"
+  else
+    echo "{\"name\":\"certbot\",\"status\":\"warn\",\"reason\":\"optional; required only for Let's Encrypt workflows\"}" >> "$REPORT_TMP"
+  fi
+
+  if command -v nginx >/dev/null 2>&1; then
+    echo "{\"name\":\"nginx\",\"status\":\"pass\",\"reason\":\"installed\"}" >> "$REPORT_TMP"
+  else
+    echo "{\"name\":\"nginx\",\"status\":\"warn\",\"reason\":\"optional; depends on edge topology\"}" >> "$REPORT_TMP"
   fi
 
   return "$failed"

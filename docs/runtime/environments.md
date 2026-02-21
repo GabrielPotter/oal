@@ -21,14 +21,15 @@ Out of scope:
 ## Environment Profiles
 
 Dev:
-- Foundation stack: PostgreSQL, Redis, RabbitMQ, Keycloak.
-- App stack: web-nginx, gateway-api, identity-api, catalog-api.
-- Optional local cluster workflows with `kind`.
+- Primary workflow: local Kubernetes on `kind`.
+- Default TLS profile: local CA (`app.local`, `id.local`) with trusted root.
+- Compose remains available as fallback for rapid troubleshooting.
 
 On-prem:
-- Bootstrap compose profile and hardened compose profile.
-- Kubernetes overlays under `infra/environments/onprem/k8s/overlays/{dev,test,prod}`.
-- TLS lifecycle scripts for issue/renew.
+- Template/adaptation profile, not a fixed concrete cluster topology.
+- Bootstrap compose profile and hardened compose profile remain as reference implementations.
+- Kubernetes overlays under `infra/environments/onprem/k8s/overlays/{dev,test,prod}` are baseline templates.
+- Certificate source is deployment-specific (local CA or public domain/issuer).
 
 GCP:
 - Terraform provisioning under `infra/environments/gcp/terraform`.
@@ -38,7 +39,8 @@ GCP:
 ## Concrete Commands and Examples
 
 ```sh
-infra/lifecycle/run/run-dev.sh up
+infra/lifecycle/run/run-dev.sh up --mode k8s --tls local-ca
+infra/lifecycle/run/run-dev.sh up --mode compose
 infra/lifecycle/run/run-onprem.sh hardened --env-file .env
 REGISTRY_PREFIX=<registry> infra/lifecycle/deploy/deploy-gcp.sh --env prod
 ```

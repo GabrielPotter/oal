@@ -15,7 +15,8 @@ Out of scope:
 
 ## Baseline Assumptions
 
-- `dev` and `onprem` are tooling-parity oriented.
+- `dev` is kind-first for local Kubernetes workflows.
+- `onprem` is an adaptation baseline profile for later deployment-specific specialization.
 - `gcp` adds cloud-specific prerequisites.
 
 ## Prerequisites
@@ -41,7 +42,7 @@ infra/lifecycle/build/build-all.sh --target {dev|onprem|gcp} --env {dev|test|pro
 ## Run
 
 ```sh
-infra/lifecycle/run/run-dev.sh [up|down|reset]
+infra/lifecycle/run/run-dev.sh [up|down|reset] --mode {k8s|compose} [--tls {local-ca|plain}] [--cluster-name <name>] [--delete-cluster]
 infra/lifecycle/run/run-onprem.sh [bootstrap|hardened|down]
 infra/lifecycle/run/run-gcp.sh --base-url <url>
 ```
@@ -58,6 +59,7 @@ REGISTRY_PREFIX=<registry> infra/lifecycle/deploy/deploy-gcp.sh --env {dev|test|
 ```sh
 infra/lifecycle/verify/verify-all.sh --target {dev|onprem|gcp|all}
 infra/lifecycle/verify/verify-docs.sh
+infra/lifecycle/verify/verify-manifests-dev-kind.sh
 ```
 
 ## Failure Modes and Troubleshooting
