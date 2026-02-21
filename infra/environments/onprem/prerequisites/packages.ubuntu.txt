@@ -1,0 +1,11 @@
+# Required packages for on-prem operations on Ubuntu/Debian
+bash
+git
+curl
+jq
+docker.io
+docker-compose-plugin
+openssl
+certbot
+nginx
+kubectl

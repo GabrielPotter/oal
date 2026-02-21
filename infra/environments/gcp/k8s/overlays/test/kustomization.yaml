@@ -1,0 +1,24 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: gcp
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: oal-test
+resources:
+  - ../../base
+  - ingress-gcp.yaml
+  - managed-certificate.yaml
+configMapGenerator:
+  - name: platform-config
+    behavior: merge
+    literals:
+      - PLATFORM_TARGET=gcp
+      - AUTHORITY_URL=https://id-test.example.com/realms/oal
+      - FRONTEND_ALLOWED_ORIGINS=https://app-test.example.com
+      - FRONTEND_AUTH_AUTHORITY=https://id-test.example.com/realms/oal
+      - FRONTEND_AUTH_REDIRECT_URI=https://app-test.example.com/app
+      - FRONTEND_AUTH_POST_LOGOUT_REDIRECT_URI=https://app-test.example.com/login
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,36 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: gcp
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-nginx
+  template:
+    metadata:
+      labels:
+        app: web-nginx
+    spec:
+      containers:
+        - name: web-nginx
+          image: ghcr.io/oal/web-nginx:latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20

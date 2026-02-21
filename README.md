@@ -25,12 +25,12 @@ Skeleton monorepo for .NET microservices and React/Vite UI with reusable platfor
   - adapters: RabbitMQ publisher, EF Core + Npgsql db context skeleton
 - React + Vite UI scaffold under `src/ui/web-app`.
 - Nginx reverse proxy pattern for Browser -> Gateway.Api.
-- Local infra baseline under `infra/docker/compose/docker-compose.local.yml`:
+- Local infra baseline under `infra/environments/dev/docker/compose/stack.foundation.yml`:
   - Postgres
   - RabbitMQ (optional/non-primary)
   - Redis OSS
   - Keycloak (dev mode)
-- Automation scripts under `infra/scripts/*`.
+- Automation scripts under `infra/lifecycle/* and infra/environments/<target>/scripts/*`.
 
 ## Quick start
 
@@ -49,12 +49,12 @@ npm run build
 ## Local infrastructure
 
 ```bash
-bash infra/scripts/env/local-up.sh
-bash infra/scripts/env/local-down.sh
+infra/lifecycle/run/run-dev.sh up
+infra/lifecycle/run/run-dev.sh down
 ```
 
 ```bash
-docker compose -f infra/docker/compose/docker-compose.dev.yml up --build
+infra/lifecycle/run/run-dev.sh up
 ```
 
 ## HTTPS Modes
@@ -62,20 +62,30 @@ docker compose -f infra/docker/compose/docker-compose.dev.yml up --build
 On-prem HTTPS edge (Let's Encrypt + Nginx TLS termination):
 
 ```bash
-bash infra/scripts/init/tls-onprem.sh app.example.com admin@example.com
-docker compose -f infra/docker/compose/docker-compose.onprem-https.yml up --build -d
+infra/environments/onprem/scripts/tls/issue-letsencrypt.sh app.example.com admin@example.com
+infra/lifecycle/run/run-onprem.sh bootstrap
 ```
 
 GCP HTTPS edge (Ingress + managed certificate):
 
 ```bash
-kubectl apply -k infra/k8s/overlays/prod
+kubectl apply -k infra/environments/gcp/k8s/overlays/prod
+```
+
+On-prem HTTPS edge (Kubernetes + ingress controller + TLS secret):
+
+```bash
+kubectl apply -k infra/environments/onprem/k8s/overlays/prod
 ```
 
 Security model:
 - Browser/API calls are always HTTPS at the edge.
 - Service-to-service communication remains HTTP on private network boundaries.
 - Gateway is the only user-facing backend.
+
+Secret provider patterns:
+- GCP: Secret Manager + workload identity.
+- On-prem: Vault/Kubernetes secret injection.
 
 ## Frontend Gateway API (BFF)
 
@@ -88,7 +98,7 @@ Gateway user-facing endpoints:
 ## Scaffold a new service
 
 ```bash
-bash infra/scripts/init/new-service.sh Orders
+infra/lifecycle/build/new-service.sh Orders
 ```
 
 This creates:

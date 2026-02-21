@@ -1,0 +1,112 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: gcp
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: catalog-api
+  template:
+    metadata:
+      labels:
+        app: catalog-api
+    spec:
+      containers:
+        - name: catalog-api
+          image: ghcr.io/oal/catalog-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: Runtime__PlatformTarget
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: PLATFORM_TARGET
+            - name: Authentication__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: AUTHORITY_URL
+            - name: Authentication__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: AUTH_AUDIENCE
+            - name: Authentication__RequireHttpsMetadata
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: AUTH_REQUIRE_HTTPS_METADATA
+            - name: Authorization__RequiredScope
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: AUTH_SCOPE
+            - name: Authorization__TenantClaim
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: AUTH_TENANT_CLAIM
+            - name: Encryption__ApplicationName
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: ENCRYPTION_APP_NAME
+            - name: Messaging__Broker
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: MESSAGING_BROKER
+            - name: Messaging__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: MESSAGING_PORT
+            - name: Messaging__VirtualHost
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: MESSAGING_VHOST
+            - name: Messaging__Exchange
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-config
+                  key: MESSAGING_EXCHANGE
+            - name: Persistence__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: platform-runtime-secrets
+                  key: PERSISTENCE_CONNECTION_STRING
+            - name: Messaging__Host
+              valueFrom:
+                secretKeyRef:
+                  name: platform-runtime-secrets
+                  key: MESSAGING_HOST
+            - name: Messaging__Username
+              valueFrom:
+                secretKeyRef:
+                  name: platform-runtime-secrets
+                  key: MESSAGING_USERNAME
+            - name: Messaging__Password
+              valueFrom:
+                secretKeyRef:
+                  name: platform-runtime-secrets
+                  key: MESSAGING_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20

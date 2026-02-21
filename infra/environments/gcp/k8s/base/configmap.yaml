@@ -1,0 +1,28 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: gcp
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-config
+data:
+  PLATFORM_TARGET: "onprem"
+  AUTHORITY_URL: "https://id.example.com/realms/oal"
+  AUTH_AUDIENCE: "oal.api"
+  AUTH_REQUIRE_HTTPS_METADATA: "true"
+  AUTH_SCOPE: "oal.api"
+  AUTH_TENANT_CLAIM: "tenant_id"
+  ENCRYPTION_APP_NAME: "oal-platform"
+  MESSAGING_BROKER: "rabbitmq"
+  MESSAGING_PORT: "5672"
+  MESSAGING_VHOST: "/"
+  MESSAGING_EXCHANGE: "oal.events"
+  FRONTEND_ALLOWED_ORIGINS: "https://app.example.com"
+  FRONTEND_AUTH_AUTHORITY: "https://id.example.com/realms/oal"
+  FRONTEND_AUTH_REALM: "oal"
+  FRONTEND_AUTH_CLIENT_ID: "web-app"
+  FRONTEND_AUTH_SCOPE: "openid profile email"
+  FRONTEND_AUTH_REDIRECT_URI: "https://app.example.com/app"
+  FRONTEND_AUTH_POST_LOGOUT_REDIRECT_URI: "https://app.example.com/login"

@@ -1,0 +1,39 @@
+name: dual-target-validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  dotnet-and-ui-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify .NET
+        run: bash infra/lifecycle/verify/verify-dotnet.sh
+      - name: Verify UI
+        run: bash infra/lifecycle/verify/verify-ui.sh
+
+  gcp-manifests-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - name: Validate GCP overlays
+        run: bash infra/lifecycle/verify/verify-manifests-gcp.sh
+
+  onprem-manifests-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - name: Validate on-prem overlays
+        run: bash infra/lifecycle/verify/verify-manifests-onprem.sh

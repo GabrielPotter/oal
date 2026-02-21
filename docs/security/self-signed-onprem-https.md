@@ -124,7 +124,7 @@ sudo update-ca-trust
 Create TLS config:
 
 ```bash
-cat > infra/nginx/default-https-selfsigned.conf <<'EOF'
+cat > infra/environments/onprem/edge/nginx/default-https-selfsigned.conf <<'EOF'
 server {
     listen 80;
     server_name _;
@@ -169,7 +169,7 @@ EOF
 Create compose override:
 
 ```bash
-cat > infra/docker/compose/docker-compose.onprem-selfsigned.yml <<'EOF'
+cat > infra/environments/onprem/docker/compose/stack.onprem-selfsigned.yml <<'EOF'
 services:
   web-nginx:
     volumes:
@@ -185,8 +185,8 @@ Run:
 
 ```bash
 docker compose \
-  -f infra/docker/compose/docker-compose.onprem-https.yml \
-  -f infra/docker/compose/docker-compose.onprem-selfsigned.yml \
+  -f infra/environments/onprem/docker/compose/stack.bootstrap.yml \
+  -f infra/environments/onprem/docker/compose/stack.onprem-selfsigned.yml \
   up --build -d
 ```
 

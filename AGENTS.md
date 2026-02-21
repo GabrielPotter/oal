@@ -54,6 +54,11 @@ Use this default flow for every task:
 - Define clear service boundaries and contract-first communication.
 - Keep comments concise and only where they add clarity.
 
+## Documentation Format Rules
+- Write documentation in English.
+- In Markdown command examples, do not prefix script execution with `bash`; use direct executable paths (for example: `infra/lifecycle/run/run-dev.sh up`).
+- Use fenced code blocks with an explicit language tag where applicable (for example: `sh`, `yaml`, `json`).
+
 Technology baseline:
 - Backend: .NET / C#.
 - Frontend: React + Vite + TypeScript.

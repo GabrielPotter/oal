@@ -1,0 +1,34 @@
+# Purpose: Configuration artifact for OAL platform infrastructure.
+# Environment scope: gcp
+# Consumer: kustomize/kubectl
+# Secret handling: do not commit real secret values; use environment-specific secret stores.
+# Override priority: runtime environment variables > deployment overlays > file defaults.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oal-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/managed-certificates: "oal-managed-cert"
+    kubernetes.io/ingress.allow-http: "false"
+    # Optional Cloud Armor policy hook:
+    # cloud.google.com/backend-config: '{"default":"oal-backendconfig"}'
+spec:
+  rules:
+    - host: app-dev.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-nginx
+                port:
+                  number: 80

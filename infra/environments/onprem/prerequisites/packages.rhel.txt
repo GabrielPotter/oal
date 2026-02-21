@@ -1,0 +1,11 @@
+# Required packages for on-prem operations on RHEL-compatible systems
+bash
+git
+curl
+jq
+docker
+docker-compose-plugin
+openssl
+certbot
+nginx
+kubectl

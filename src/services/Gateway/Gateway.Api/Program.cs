@@ -10,6 +10,7 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ValidatePlatformConfiguration(builder.Configuration);
 builder.Services.AddOpenApi();
 builder.Services.AddPlatformCommunication();
 builder.Services.AddPlatformEncryption(builder.Configuration);

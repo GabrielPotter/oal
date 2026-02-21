@@ -11,10 +11,14 @@ public static class PlatformAuthenticationExtensions {
         this IServiceCollection services,
         IConfiguration configuration) {
         var authority = configuration["Authentication:Authority"];
-        var audience = configuration["Authentication:Audience"] ?? "oal.api";
-        var issuer = configuration["Authentication:Issuer"] ?? "oal.identity";
-        var signingKey = configuration["Authentication:SigningKey"] ?? "dev-signing-key-change-me";
-        var requireHttpsMetadata = configuration.GetValue("Authentication:RequireHttpsMetadata", false);
+        var audience = configuration["Authentication:Audience"];
+        var issuer = configuration["Authentication:Issuer"];
+        var signingKey = configuration["Authentication:SigningKey"];
+        var requireHttpsMetadata = configuration.GetValue("Authentication:RequireHttpsMetadata", true);
+
+        if (string.IsNullOrWhiteSpace(audience)) {
+            throw new InvalidOperationException("Missing required configuration key 'Authentication:Audience'.");
+        }
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -26,6 +30,12 @@ public static class PlatformAuthenticationExtensions {
                 if (!string.IsNullOrWhiteSpace(authority)) {
                     options.Authority = authority;
                     return;
+                }
+
+                if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(signingKey)) {
+                    throw new InvalidOperationException(
+                        "When 'Authentication:Authority' is not configured, both 'Authentication:Issuer' and " +
+                        "'Authentication:SigningKey' must be provided.");
                 }
 
                 options.TokenValidationParameters = new TokenValidationParameters {

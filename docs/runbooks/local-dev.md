@@ -14,25 +14,31 @@ Provide a reproducible local Linux-compatible environment aligned with productio
 ## Commands
 
 ```bash
-bash infra/scripts/env/local-up.sh
-bash infra/scripts/env/local-down.sh
+infra/lifecycle/run/run-dev.sh up
+infra/lifecycle/run/run-dev.sh down
 ```
 
 ```bash
-docker compose -f infra/docker/compose/docker-compose.dev.yml up --build
+infra/lifecycle/run/run-dev.sh reset
 ```
 
 ## HTTPS Profile (On-Prem Simulation)
 
 ```bash
-bash infra/scripts/init/tls-onprem.sh app.example.com admin@example.com
-docker compose -f infra/docker/compose/docker-compose.onprem-https.yml up --build -d
+infra/environments/onprem/scripts/tls/issue-letsencrypt.sh app.example.com admin@example.com
+infra/lifecycle/run/run-onprem.sh bootstrap
+```
+
+Hardened on-prem bootstrap profile (no Keycloak `start-dev`):
+
+```bash
+infra/lifecycle/run/run-onprem.sh hardened --env-file .env
 ```
 
 Renew certificates:
 
 ```bash
-bash infra/scripts/env/tls-renew.sh
+infra/environments/onprem/scripts/tls/renew.sh
 ```
 
 ## Access Points
